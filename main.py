@@ -11,22 +11,23 @@ if __name__ == '__main__':
                 all_folders = zipfile.namelist()  # получение списка всех файлов и папок
                 while True:
                     if path == '':
-                        print('[vshell@root ~] ', end='')
+                        print('vshell:/ ', end='')
                     else:
-                        tmp = path.split('/')  # создаем массив из директорий
-                        last_path = tmp[-2]  # выбираем предпоследнюю папку
-                        print(f'[vshell@root {last_path}] ', end='')
+                        print(f'vshell:/{path[:-1]} ', end='')
                     split_str = input()  # ввод пользователем команды + арумента
                     split_str = split_str.split(' ')  # отделяем команду от аргумента
 
                     # обрабатываем всевозможные команды
                     if split_str[0] == 'pwd':
-                        print(f'/{path}')  # вывод текущей директории
+                        if path == '':
+                            print('/')
+                        else:
+                            print(f'/{path[:-1]}')  # вывод текущей директории
 
                     elif split_str[0] == 'ls':
                         correct_args = True
                         incorrect_args = []
-                        if len(split_str) != 1:    # проверка на лишние аргументы. если одни пробелы - тогда все ок
+                        if len(split_str) != 1:  # проверка на лишние аргументы. если одни пробелы - тогда все ок
                             for i in range(1, len(split_str)):
                                 if split_str[i] != '':
                                     incorrect_args.append(split_str[i])
@@ -48,9 +49,9 @@ if __name__ == '__main__':
                                 print("ls: " + x + ": No such file or directory")
 
                     elif split_str[0] == 'cd':
-                        # Получение новой dir
+                        # получение новой директории
                         command_str = ' '.join(split_str[1:])
-                        if command_str == '..':
+                        if command_str == '..':  # родительская директория
                             if path != '':  # проверка на некорневую dir
                                 tmp = path.split('/')
                                 tmp = tmp[:-2]  # обрезаем последние два элемента списка
@@ -60,13 +61,21 @@ if __name__ == '__main__':
                                     tmp = ''
                                 else:
                                     tmp = tmp + '/'
-                                path = tmp  # преобразование временной dir в текущую
+                                path = tmp
+                        elif command_str == '.':  # та же директория
+                            continue
                         else:
-                            tmp_dir = f'{path}{command_str}/'
+                            if command_str[0] == '/':  # если абсолютный путь
+                                tmp_dir = f'{command_str[1:]}/'
+                            else:
+                                tmp_dir = f'{path}{command_str}/' # если обычный
                             if tmp_dir in all_folders:  # если данная dir существует в листе всех папок
                                 path = tmp_dir  # преобразование временной dir в текущую
+                            elif tmp_dir[:-1] in all_folders:
+                                print(f'sh: cd: can\'t cd to {command_str}: Not a directory') # если файл
                             else:
-                                print(f'sh: cd: {command_str}: No such file or directory')
+                                print(f'sh: cd: can\'t cd to {command_str}: No such file or directory')
+
                     elif split_str[0] == 'cat':
                         f = ' '.join(split_str[1:])  # соединение аргумента через пробелы
                         with zipfile.open(f'{path}{f}', 'r') as file:  # открытие файла из архива
