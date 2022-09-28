@@ -24,16 +24,28 @@ if __name__ == '__main__':
                         print(f'/{path}')  # вывод текущей директории
 
                     elif split_str[0] == 'ls':
-                        unic_list = set()  # делаем множество из папок
-                        for folder in all_folders:  # перебираем все папки
-                            if folder.startswith(path):  # смотрим что у каждой внутри
-                                folder = folder[len(path):]  # обрезаем название папки из пути
-                                unic_list.add(
-                                    (folder.split('/')[0]))
-                        # выводим всё, кроме пустых строк
-                        for el in sorted(unic_list):
-                            if el != '':
-                                print(el)
+                        correct_args = True
+                        incorrect_args = []
+                        if len(split_str) != 1:    # проверка на лишние аргументы. если одни пробелы - тогда все ок
+                            for i in range(1, len(split_str)):
+                                if split_str[i] != '':
+                                    incorrect_args.append(split_str[i])
+                            if len(incorrect_args) != 0:
+                                correct_args = False
+                        if correct_args:
+                            unic_list = set()  # делаем множество из папок
+                            for folder in all_folders:  # перебираем все папки
+                                if folder.startswith(path):  # смотрим что у каждой внутри
+                                    folder = folder[len(path):]  # обрезаем название папки из пути
+                                    unic_list.add(
+                                        (folder.split('/')[0]))
+                            # выводим всё, кроме пустых строк
+                            for el in sorted(unic_list):
+                                if el != '':
+                                    print(el)
+                        else:
+                            for x in incorrect_args:
+                                print("ls: " + x + ": No such file or directory")
 
                     elif split_str[0] == 'cd':
                         # Получение новой dir
