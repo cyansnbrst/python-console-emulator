@@ -30,13 +30,17 @@ if __name__ == '__main__':
                         incorrect_args = []
                         if len(split_str) != 1:
                             new_path = f'{split_str[1]}/'
-                            if not new_path in all_folders:
+                            if new_path[0] == '/': # если абсолютный путь
+                                new_path = new_path[1:]
+                            if not new_path in all_folders and new_path != '/':
                                 for i in range(1,
                                                len(split_str)):  # проверка на лишние аргументы. если одни пробелы - тогда все ок
                                     if split_str[i] != '':
                                         incorrect_args.append(split_str[i])
                                 if len(incorrect_args) != 0:
                                     correct_args = False
+                        if new_path == '/': # снова проверяем корень, тк слеш у него не уберется
+                            new_path = ''
                         if correct_args:
                             unic_list = set()  # делаем множество из папок
                             for folder in all_folders:  # перебираем все папки
@@ -81,9 +85,9 @@ if __name__ == '__main__':
                                 print(f'sh: cd: can\'t cd to {command_str}: No such file or directory')
 
                     elif split_str[0] == 'cat':
-                        file_path = f'{split_str[1]}/'
+                        file_path = split_str[1]
                         if file_path in all_folders:
-                            with zipfile.open(f'{path}{file_path[:-1]}', 'r') as file:  # открытие файла из архива
+                            with zipfile.open(f'{path}{file_path}', 'r') as file:  # открытие файла из архива
                                 for a in file.readlines():
                                     for b in a.decode('utf-8').strip():
                                         print(b, end='')  # вывод текста из файла
