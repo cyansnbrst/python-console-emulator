@@ -30,7 +30,7 @@ if __name__ == '__main__':
                         incorrect_args = []
                         if len(split_str) != 1:
                             new_path = f'{split_str[1]}/'
-                            if new_path[0] == '/': # если абсолютный путь
+                            if new_path[0] == '/':  # если абсолютный путь
                                 new_path = new_path[1:]
                             if not new_path in all_folders and new_path != '/':
                                 for i in range(1,
@@ -39,7 +39,7 @@ if __name__ == '__main__':
                                         incorrect_args.append(split_str[i])
                                 if len(incorrect_args) != 0:
                                     correct_args = False
-                        if new_path == '/': # снова проверяем корень, тк слеш у него не уберется
+                        if new_path == '/':  # снова проверяем корень, тк слеш у него не уберется
                             new_path = ''
                         if correct_args:
                             unic_list = set()  # делаем множество из папок
@@ -92,8 +92,10 @@ if __name__ == '__main__':
                                     for b in a.decode('utf-8').strip():
                                         print(b, end='')  # вывод текста из файла
                                     print()
+                        elif f'{file_path}/' in all_folders:
+                            print(f"cat: can\'t open \'{file_path}\': Not a file")
                         else:
-                            print(f"cat: can\'t open \'{file_path[:-1]}\': No such file or directory")
+                            print(f"cat: can\'t open \'{file_path}\': No such file or directory")
 
                     elif split_str[0] == 'exit':
                         break
