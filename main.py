@@ -2,106 +2,50 @@
 
 import zipfile
 import sys
+from console import Console
 
 if __name__ == '__main__':
-    path = ''
     try:
         if len(sys.argv) > 1:
             with zipfile.ZipFile(sys.argv[1]) as zipfile:  # открытие файла
-                all_folders = zipfile.namelist()  # получение списка всех файлов и папок
+                directories = zipfile.namelist()  # получение списка всех файлов и папок
+                vshell = Console(directories)
                 while True:
-                    if path == '':
-                        print('vshell:/ ', end='')
+                    if vshell.current_path == '':
+                        print('[~vshell]:/ ', end='')
                     else:
-                        print(f'vshell:/{path[:-1]} ', end='')
-                    split_str = input()  # ввод пользователем команды + арумента
-                    split_str = split_str.split(' ')  # отделяем команду от аргумента
+                        print(f'[~vshell]:/{vshell.current_path[:-1]} ', end='')
+                    users_input = input()  # ввод пользователем команды + арумента
+                    users_input = users_input.split(' ')  # отделяем команду от аргумента
 
                     # обрабатываем всевозможные команды
-                    if split_str[0] == 'pwd':
-                        if path == '':
-                            print('/')
-                        else:
-                            print(f'/{path[:-1]}')  # вывод текущей директории
+                    if users_input[0] == 'pwd':
+                        vshell.pwd_command()
 
-                    elif split_str[0] == 'ls':
-                        new_path = path
-                        correct_args = True
-                        incorrect_args = []
-                        if len(split_str) != 1:
-                            new_path = f'{split_str[1]}/'
-                            if new_path[0] == '/':  # если абсолютный путь
-                                new_path = new_path[1:]
-                            if not new_path in all_folders and new_path != '/':
-                                for i in range(1,
-                                               len(split_str)):  # проверка на лишние аргументы. если одни пробелы - тогда все ок
-                                    if split_str[i] != '':
-                                        incorrect_args.append(split_str[i])
-                                if len(incorrect_args) != 0:
-                                    correct_args = False
-                        if new_path == '/':  # снова проверяем корень, тк слеш у него не уберется
-                            new_path = ''
-                        if correct_args:
-                            unic_list = set()  # делаем множество из папок
-                            for folder in all_folders:  # перебираем все папки
-                                if folder.startswith(new_path):  # смотрим что у каждой внутри
-                                    folder = folder[len(new_path):]  # обрезаем название папки из пути
-                                    unic_list.add(
-                                        (folder.split('/')[0]))
-                            # выводим всё, кроме пустых строк
-                            for el in sorted(unic_list):
-                                if el != '':
-                                    print(el)
-                        else:
-                            for x in incorrect_args:
-                                print("ls: " + x + ": No such file or directory")
+                    elif users_input[0] == 'ls':
+                        vshell.ls_command(users_input)
 
-                    elif split_str[0] == 'cd':
-                        # получение новой директории
-                        command_str = ' '.join(split_str[1:])
-                        if command_str == '..':  # родительская директория
-                            if path != '':  # проверка на некорневую dir
-                                tmp = path.split('/')
-                                tmp = tmp[:-2]  # обрезаем последние два элемента списка
-                                # (dir, в которой мы находимся и пустой элемент)
-                                tmp = '/'.join(tmp)
-                                if tmp == '/' or tmp == '':  # если находимся в корневой dir
-                                    tmp = ''
-                                else:
-                                    tmp = tmp + '/'
-                                path = tmp
-                        elif command_str == '.':  # та же директория
-                            continue
-                        else:
-                            if command_str[0] == '/':  # если абсолютный путь
-                                tmp_dir = f'{command_str[1:]}/'
+                    elif users_input[0] == 'cd':
+                        vshell.cd_command(users_input)
+
+                    elif users_input[0] == 'cat':
+                        if len(users_input) > 0:
+                            file_for_reading = users_input[1]
+                            if file_for_reading in vshell.directories:
+                                with zipfile.open(f'{vshell.current_path}{file_for_reading}',
+                                                  'r') as file:  # открытие файла из архива
+                                    for line in file.readlines():
+                                        for symbol in line.decode('utf-8').strip():
+                                            print(symbol, end='')  # вывод текста из файла
+                                        print()
                             else:
-                                tmp_dir = f'{path}{command_str}/'  # если обычный
-                            if tmp_dir in all_folders:  # если данная dir существует в листе всех папок
-                                path = tmp_dir  # преобразование временной dir в текущую
-                            elif tmp_dir[:-1] in all_folders:
-                                print(f'sh: cd: can\'t cd to {command_str}: Not a directory')  # если файл
-                            else:
-                                print(f'sh: cd: can\'t cd to {command_str}: No such file or directory')
+                                print(f"cat: can\'t open \'{file_for_reading}\': No such file ")
 
-                    elif split_str[0] == 'cat':
-                        file_path = split_str[1]
-                        if file_path in all_folders:
-                            with zipfile.open(f'{path}{file_path}', 'r') as file:  # открытие файла из архива
-                                for a in file.readlines():
-                                    for b in a.decode('utf-8').strip():
-                                        print(b, end='')  # вывод текста из файла
-                                    print()
-                        elif f'{file_path}/' in all_folders:
-                            print(f"cat: can\'t open \'{file_path}\': Not a file")
-                        else:
-                            print(f"cat: can\'t open \'{file_path}\': No such file or directory")
-
-                    elif split_str[0] == 'exit':
+                    elif users_input[0] == 'exit':
                         break
 
                     else:
-                        print(f'sh: {split_str[0]}: command not found')
+                        print(f'sh: {users_input[0]}: command not found')
         else:
             print('Enter filename')
 
