@@ -28,7 +28,7 @@ class Console:
         elif self.users_input[0] == "cat":
             self.cat_command()
         else:
-            print(f"vsh: {self.users_input[0]}: command not found")
+            print(f"sh: {self.users_input[0]}: command not found")
 
     def pwd_command(self):
         if self.current_path == '':
@@ -85,7 +85,7 @@ class Console:
                 if path == '/' or path == '':
                     path = ''
                 else:
-                    path = path + '/'
+                    path += '/'
                 self.current_path = path
         else:
             if input[0] == '/':
