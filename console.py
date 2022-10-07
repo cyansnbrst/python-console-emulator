@@ -1,12 +1,12 @@
-import sys
 from zipfile import ZipFile
-
+__all__ = ZipFile
 
 class Console:
 
-    def __init__(self, directories):
+    def __init__(self, directories, zipfile):
         self.current_path = ''
         self.directories = directories
+        self.zipfile = zipfile
 
     def pwd_command(self):
         if self.current_path == '':
@@ -76,3 +76,23 @@ class Console:
                 print(f"sh: cd: can\'t cd to {input}: Not a directory")
             else:
                 print(f"sh: cd: can\'t cd to {input}: No such file or directory")
+
+    def cat_command(self, users_input):
+        all_files = []
+        for file in users_input[1:]:
+            if file != '':
+                all_files.append(file)
+        if len(all_files) > 0:
+            for file_for_reading in all_files:
+                if file_for_reading[0] == '/':
+                    file_for_reading = file_for_reading[1:]
+                if file_for_reading in self.directories:
+                    with self.zipfile.open(f"{self.current_path}{file_for_reading}", 'r') as file:
+                        for line in file.readlines():
+                            for symbol in line.decode('utf-8').strip():
+                                print(symbol, end="")
+                            print()
+                else:
+                    print(f"cat: can\'t open \'{file_for_reading}\': No such file ")
+        else:
+            return
