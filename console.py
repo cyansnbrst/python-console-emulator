@@ -1,5 +1,7 @@
 from zipfile import ZipFile
+
 __all__ = ZipFile
+
 
 class Console:
 
@@ -10,9 +12,9 @@ class Console:
 
     def start(self):
         if self.current_path == '':
-            print("[~vshell]:/ ", end='')
+            print("[@vshell]:/ ", end='')
         else:
-            print(f"[~vshell]:/{self.current_path[:-1]} ", end='')
+            print(f"[@vshell]:/{self.current_path[:-1]} ", end='')
         users_input = input()
         self.users_input = users_input.split(' ')
 
@@ -43,7 +45,7 @@ class Console:
         if len(self.users_input) != 1:
             path = f'{self.users_input[1]}/'
             if path[0] == '/':
-                path = path[1:]
+                path = path[1:] # root не обрезается!
             if not path in self.directories and path != '/':
                 for i in range(1, len(self.users_input)):
                     if self.users_input[i] != '':
@@ -71,10 +73,13 @@ class Console:
 
     def cd_command(self):
         input = ''
-        for inp in self.users_input[1:]:
+        for inp in self.users_input[1:]: # берем только первый аргумент
             if inp != '':
                 input = inp
                 break
+        if input == '/':
+            self.current_path = ''
+            return
         if input == '' or input == '.':
             return
         if input == '..':
@@ -87,6 +92,8 @@ class Console:
                 else:
                     path += '/'
                 self.current_path = path
+            else:
+                return
         else:
             if input[0] == '/':
                 directory = f"{input[1:]}/"
