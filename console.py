@@ -45,7 +45,7 @@ class Console:
         if len(self.users_input) != 1:
             path = f'{self.users_input[1]}/'
             if path[0] == '/':
-                path = path[1:] # root не обрезается!
+                path = path[1:]  # root не обрезается!
             if not path in self.directories and path != '/':
                 for i in range(1, len(self.users_input)):
                     if self.users_input[i] != '':
@@ -73,7 +73,7 @@ class Console:
 
     def cd_command(self):
         input = ''
-        for inp in self.users_input[1:]: # берем только первый аргумент
+        for inp in self.users_input[1:]:  # берем только первый аргумент
             if inp != '':
                 input = inp
                 break
@@ -115,8 +115,10 @@ class Console:
             for file_for_reading in all_files:
                 if file_for_reading[0] == '/':
                     file_for_reading = file_for_reading[1:]
-                if f"{self.current_path}{file_for_reading}" in self.directories:
-                    with self.zipfile.open(f"{self.current_path}{file_for_reading}", 'r') as file:
+                else:
+                    file_for_reading = f"{self.current_path}{file_for_reading}"
+                if f"{file_for_reading}" in self.directories:
+                    with self.zipfile.open(f"{file_for_reading}", 'r') as file:
                         for line in file.readlines():
                             for symbol in line.decode('utf-8').strip():
                                 print(symbol, end="")
